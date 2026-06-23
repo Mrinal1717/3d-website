@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Premium Typography Mapping */
+  --font-display: var(--font-syne), sans-serif;
+  --font-sans: var(--font-geist), sans-serif;
+
+  /* Custom Color Palette (Obsidian Black, Volcanic Orange, Cool Silvers) */
+  --color-background: #030303;
+  --color-foreground: #fafafa;
+  --color-accent: #ff4500;
+  --color-accent-dim: rgba(255, 69, 0, 0.1);
+  --color-card-bg: #0b0b0b;
+  --color-card-border: #1a1a1a;
+  --color-muted-text: #8e8e93;
+
+  /* Spacing Scale Helpers (Dynamic Cinematic Layouts) */
+  --spacing-128: 32rem;
+  --spacing-144: 36rem;
+
+  /* Premium Shadow Effects */
+  --shadow-cinematic: 0 20px 80px -15px rgba(0, 0, 0, 0.9);
+  --shadow-glow: 0 0 30px rgba(255, 69, 0, 0.3);
+
+  /* Animation Presets */
+  --animate-float: float 6s ease-in-out infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Keyframes for float animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
+:root {
+  --background: #030303;
+  --foreground: #fafafa;
+}
+
+/* Custom premium text-selection color */
+::selection {
+  background-color: #ff4500;
+  color: #030303;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #030303;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff4500;
+}
+
+/* Lenis smooth scroll resets */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Base Body Override */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+}
+
+/* Typography styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+/* Awwwards text stroke styling */
+.text-stroke {
+  -webkit-text-stroke: 1px rgba(250, 250, 250, 0.15);
+  color: transparent;
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.text-stroke:hover {
+  -webkit-text-stroke: 1px #ff4500;
 }
