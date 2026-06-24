@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ArrowDown, Cpu, Zap, Wind, ArrowUpRight } from "lucide-react";
+import { ArrowDown, Cpu, Zap, Wind, ArrowUpRight, Menu, X } from "lucide-react";
 import SplitType from "split-type";
 import { useLoading } from "@/components/LoadingContext";
 import { scrollState } from "@/lib/scrollState";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import FeatureCard from "@/components/FeatureCard";
 import SandboxScene from "@/three/SandboxScene";
 import ScrollCinema from "@/components/ScrollCinema";
@@ -15,6 +15,7 @@ import ScrollCinema from "@/components/ScrollCinema";
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isComplete } = useLoading();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useGSAP(() => {
     if (!isComplete) return;
@@ -89,6 +90,9 @@ export default function Home() {
       ease: "power3.out",
     });
 
+    return () => {
+      heroTitle.revert();
+    };
   }, { dependencies: [isComplete], scope: containerRef });
 
   // Framer Motion Viewport Stagger Variants
@@ -119,7 +123,7 @@ export default function Home() {
   return (
     <div ref={containerRef} className="relative w-full">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-md border-b border-white/5 bg-[#030303]/30">
+      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 py-4 md:px-12 md:py-6 backdrop-blur-md border-b border-white/5 bg-[#030303]/30">
         <span className="font-display font-extrabold text-xl tracking-widest text-[#fafafa] flex items-center gap-2">
           AURA <span className="inline-block w-2 h-2 rounded-full bg-[#ff4500] animate-pulse" />
         </span>
@@ -128,10 +132,60 @@ export default function Home() {
           <a href="#features" className="hover:text-[#fafafa] transition-colors duration-300">ARCHITECTURE</a>
           <a href="#sandbox" className="hover:text-[#fafafa] transition-colors duration-300">GALLERY</a>
         </div>
-        <button className="px-5 py-2.5 rounded-full bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-[#ff4500] hover:text-white transition-all duration-300 flex items-center gap-1.5 group">
-          ENTER CORE <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
-        </button>
+        <div className="flex items-center gap-4">
+          <button className="hidden sm:flex px-5 py-2.5 rounded-full bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-[#ff4500] hover:text-white transition-all duration-300 items-center gap-1.5 group">
+            ENTER CORE <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+          </button>
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="flex md:hidden p-2 text-white hover:text-[#ff4500] transition-colors focus:outline-none z-50 relative"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed inset-0 z-40 bg-[#030303]/95 backdrop-blur-xl flex flex-col justify-center items-center gap-8 text-2xl font-bold font-display tracking-widest text-[#8e8e93]"
+          >
+            <a 
+              href="#about" 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              className="hover:text-[#ff4500] hover:scale-105 transition-all duration-300 text-white"
+            >
+              EXPERIENCE
+            </a>
+            <a 
+              href="#features" 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              className="hover:text-[#ff4500] hover:scale-105 transition-all duration-300 text-white"
+            >
+              ARCHITECTURE
+            </a>
+            <a 
+              href="#sandbox" 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              className="hover:text-[#ff4500] hover:scale-105 transition-all duration-300 text-white"
+            >
+              GALLERY
+            </a>
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="mt-8 px-8 py-3 rounded-full bg-white text-black font-semibold text-sm tracking-wider uppercase hover:bg-[#ff4500] hover:text-white transition-all duration-300"
+            >
+              ENTER CORE
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
       <section className="relative h-screen w-full flex flex-col justify-center px-6 md:px-16 overflow-hidden">
@@ -139,20 +193,20 @@ export default function Home() {
           <span className="hero-reveal text-[10px] font-bold tracking-[0.25em] text-[#ff4500] uppercase">
             Interactive Digital Architecture
           </span>
-          <h1 className="hero-title text-5xl md:text-7xl lg:text-8xl font-extrabold uppercase tracking-tighter leading-[0.9] select-none flex flex-col">
+          <h1 className="hero-title text-[9vw] sm:text-6xl md:text-7xl lg:text-8xl font-extrabold uppercase tracking-tighter leading-[0.9] select-none flex flex-col">
             <span>UNLEASH</span>
             <span className="text-stroke">DIMENSIONS</span>
           </h1>
           <p className="hero-reveal max-w-lg text-sm md:text-base text-[#8e8e93] leading-relaxed mt-4 font-sans">
             A premium next-generation immersive platform combining physics-based WebGL spaces, high-fidelity scroll timelines, and flawless cinematic visuals.
           </p>
-          <div className="hero-reveal flex items-center gap-6 mt-8">
-            <button className="px-8 py-4 bg-[#ff4500] text-white rounded-full font-bold text-sm tracking-wider uppercase hover:bg-white hover:text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,69,0,0.4)]">
+          <div className="hero-reveal flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 mt-8 w-full sm:w-auto">
+            <button className="px-8 py-4 bg-[#ff4500] text-white rounded-full font-bold text-sm tracking-wider uppercase hover:bg-white hover:text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,69,0,0.4)] w-full sm:w-auto text-center">
               INITIALIZE SCENE
             </button>
             <a 
               href="#about" 
-              className="flex items-center gap-2 text-sm font-bold tracking-widest text-[#fafafa] uppercase group"
+              className="flex items-center justify-center gap-2 text-sm font-bold tracking-widest text-[#fafafa] uppercase group w-full sm:w-auto py-2"
             >
               EXPLORE DETAILS 
               <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform duration-300" />
@@ -171,12 +225,12 @@ export default function Home() {
 
       {/* Narrative Section (Scroll Beats) */}
       <section id="about" className="narrative-section relative h-screen w-full flex items-center justify-center bg-[#070707]/30 overflow-hidden border-y border-white/5">
-        <div className="max-w-4xl w-full px-6 relative h-64 flex items-center justify-center z-20">
+        <div className="max-w-4xl w-full px-6 relative h-96 sm:h-80 md:h-64 flex items-center justify-center z-20">
           
           {/* Slide 1 */}
           <div className="narrative-slide slide-1 absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none select-none">
             <span className="text-xs font-bold tracking-[0.3em] text-[#ff4500] uppercase mb-4">BEAT 01 // INCEPTION</span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
               A SINGLE PARTICLE IGNITES THE DIGITAL VOID.
             </h2>
           </div>
@@ -184,7 +238,7 @@ export default function Home() {
           {/* Slide 2 */}
           <div className="narrative-slide slide-2 absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 pointer-events-none select-none">
             <span className="text-xs font-bold tracking-[0.3em] text-[#ff4500] uppercase mb-4">BEAT 02 // SYMMETRY</span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
               PERFECT SYMMETRY EMERGES FROM COSMIC CHAOS.
             </h2>
           </div>
@@ -192,7 +246,7 @@ export default function Home() {
           {/* Slide 3 */}
           <div className="narrative-slide slide-3 absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 pointer-events-none select-none">
             <span className="text-xs font-bold tracking-[0.3em] text-[#ff4500] uppercase mb-4">BEAT 03 // FRICTION</span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
               VOLCANIC FRICTION FUELS COGNITIVE ENERGY.
             </h2>
           </div>
@@ -200,7 +254,7 @@ export default function Home() {
           {/* Slide 4 */}
           <div className="narrative-slide slide-4 absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 pointer-events-none select-none">
             <span className="text-xs font-bold tracking-[0.3em] text-[#ff4500] uppercase mb-4">BEAT 04 // CONNECTIVITY</span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
               BRIDGING SYSTEM CODE AND PHYSICAL SENSES.
             </h2>
           </div>
@@ -208,7 +262,7 @@ export default function Home() {
           {/* Slide 5 */}
           <div className="narrative-slide slide-5 absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 pointer-events-none select-none">
             <span className="text-xs font-bold tracking-[0.3em] text-[#ff4500] uppercase mb-4">BEAT 05 // HARMONY</span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight">
               UNIFIED HARMONY IN MULTIPLE DIMENSIONS.
             </h2>
           </div>
@@ -223,12 +277,12 @@ export default function Home() {
       </section>
 
       {/* Features Grid Section */}
-      <section id="features" className="py-32 px-6 md:px-16 max-w-7xl mx-auto w-full">
+      <section id="features" className="py-20 md:py-32 px-6 md:px-16 max-w-7xl mx-auto w-full">
         <div className="flex flex-col items-start gap-4 mb-20">
           <span className="text-xs font-bold tracking-[0.2em] text-[#ff4500] uppercase">
             Feature Architecture
           </span>
-          <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight">
             ENGINEERING STACK
           </h2>
         </div>
@@ -279,11 +333,11 @@ export default function Home() {
         <SandboxScene />
 
         {/* HTML Info Overlay */}
-        <div className="max-w-xl w-full mx-auto md:mx-0 flex flex-col items-start gap-4 z-20 pointer-events-none select-none">
+        <div className="max-w-xl w-full mx-auto md:mx-0 flex flex-col items-center md:items-start text-center md:text-left gap-4 z-20 pointer-events-none select-none">
           <span className="text-xs font-bold tracking-[0.25em] text-[#00f0ff] uppercase">
             GLSL Shader Sandbox
           </span>
-          <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-none uppercase">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight leading-none uppercase">
             PARTICLE<br />REACTION
           </h2>
           <p className="max-w-sm text-sm text-[#8e8e93] leading-relaxed mt-4 font-sans">
@@ -299,14 +353,14 @@ export default function Home() {
       </section>
 
       {/* Footer Section */}
-      <section className="footer-section bg-[#070707] py-24 px-6 md:px-16 border-t border-white/5">
+      <section className="footer-section bg-[#070707] py-20 md:py-24 px-6 md:px-16 border-t border-white/5">
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-12 w-full">
-          <h2 className="footer-reveal text-6xl md:text-9xl font-extrabold uppercase tracking-tighter text-stroke hover:text-[#fafafa] select-none cursor-default transition-all duration-500">
+          <h2 className="footer-reveal text-[10vw] md:text-9xl font-extrabold uppercase tracking-tighter text-stroke hover:text-[#fafafa] select-none cursor-default transition-all duration-500 text-center">
             CREATIVE CORE
           </h2>
-          <div className="footer-reveal flex flex-col md:flex-row items-center justify-between w-full border-t border-white/10 pt-12 gap-6 text-sm text-[#8e8e93]">
+          <div className="footer-reveal flex flex-col md:flex-row items-center justify-between w-full border-t border-white/10 pt-12 gap-6 text-xs sm:text-sm text-[#8e8e93] text-center md:text-left">
             <span>© 2026 AURA ENGINE. ALL RIGHTS RESERVED.</span>
-            <div className="flex gap-8">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
               <a href="#" className="hover:text-white transition-colors">GITHUB</a>
               <a href="#" className="hover:text-white transition-colors">DOCUMENTATION</a>
               <a href="#" className="hover:text-white transition-colors">AWWWARDS</a>

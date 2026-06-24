@@ -85,11 +85,13 @@ html.lenis body {
   pointer-events: none;
 }
 
-/* Base Body Override */
+/* Base Body & HTML Override */
+html,
 body {
+  max-width: 100%;
+  overflow-x: hidden;
   background-color: var(--background);
   color: var(--foreground);
-  overflow-x: hidden;
   font-family: var(--font-sans);
 }
 

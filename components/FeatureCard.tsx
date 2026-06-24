@@ -81,7 +81,7 @@ export default function FeatureCard({ icon, title, description, indexText }: Fea
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className="feature-card group relative p-10 bg-[#0b0b0b]/50 backdrop-blur-md border border-white/5 rounded-2xl flex flex-col justify-between h-96 hover:border-[#ff4500]/40 transition-colors duration-500 overflow-hidden cursor-pointer select-none"
+      className="feature-card group relative p-6 sm:p-10 bg-[#0b0b0b]/50 backdrop-blur-md border border-white/5 rounded-2xl flex flex-col justify-between h-[22rem] sm:h-96 hover:border-[#ff4500]/40 transition-colors duration-500 overflow-hidden cursor-pointer select-none"
     >
       {/* Background glow radial highlight overlay */}
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[#ff4500]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
