@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 
 interface LoadingContextType {
   progress: number;
@@ -23,6 +23,9 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
   const [sequenceProgress, setSequenceProgress] = useState(0);
   const [sequenceReady, setSequenceReady] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+
+  // Persistent reference to prevent garbage collection of image elements during loading
+  const preloaderImagesRef = useRef<HTMLImageElement[]>([]);
 
   // 1. Monitor web fonts loading
   useEffect(() => {
@@ -48,7 +51,7 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 
     const frameCount = 30;
     let loadedCount = 0;
-    const images: HTMLImageElement[] = [];
+    preloaderImagesRef.current = [];
 
     const handleImageLoad = () => {
       loadedCount++;
@@ -57,6 +60,8 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 
       if (loadedCount === frameCount) {
         setSequenceReady(true);
+        // Clear references once completed
+        preloaderImagesRef.current = [];
       }
     };
 
@@ -67,16 +72,21 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
       setSequenceProgress(currentProgress);
       if (loadedCount === frameCount) {
         setSequenceReady(true);
+        preloaderImagesRef.current = [];
       }
     };
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
-      const frameIndex = String(i).padStart(3, "0");
-      img.src = `/sequences/ezgif-frame-${frameIndex}.jpg`;
+      // Store reference immediately to prevent garbage collection
+      preloaderImagesRef.current.push(img);
+
+      // Assign event handlers BEFORE setting src to resolve cache race conditions
       img.onload = handleImageLoad;
       img.onerror = handleImageError;
-      images.push(img);
+
+      const frameIndex = String(i).padStart(3, "0");
+      img.src = `/sequences/ezgif-frame-${frameIndex}.jpg`;
     }
   }, []);
 

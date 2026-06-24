@@ -17,6 +17,19 @@ export default function ScrollCinema() {
   // Tracks if the targeted frame is cached and drawn
   const [isBufferReady, setIsBufferReady] = useState(true);
 
+  // Diagnostics / Debug state
+  const [isDebug, setIsDebug] = useState(false);
+  const [diagnostics, setDiagnostics] = useState({ loaded: 0, failed: 0 });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("debug") === "true") {
+        setIsDebug(true);
+      }
+    }
+  }, []);
+
   // Helper to draw images on 2D context: containment for landscape, cover for portrait (mobile screens)
   const drawImageAdaptive = (ctx: CanvasRenderingContext2D, img: HTMLImageElement) => {
     const canvas = ctx.canvas;
@@ -56,7 +69,7 @@ export default function ScrollCinema() {
     const frameToDraw = targetFrame.current;
     const img = images.current[frameToDraw];
 
-    if (img && img.complete) {
+    if (img && img.complete && img.naturalWidth > 0) {
       drawImageAdaptive(ctx, img);
       setIsBufferReady(true);
       currentFrame.current = frameToDraw;
@@ -70,18 +83,18 @@ export default function ScrollCinema() {
         const back = frameToDraw - offset;
         const front = frameToDraw + offset;
         
-        if (back >= 1 && images.current[back]?.complete) {
+        if (back >= 1 && images.current[back]?.complete && images.current[back]?.naturalWidth > 0) {
           nearestFrame = back;
           break;
         }
-        if (front <= 240 && images.current[front]?.complete) {
+        if (front <= 240 && images.current[front]?.complete && images.current[front]?.naturalWidth > 0) {
           nearestFrame = front;
           break;
         }
       }
       
       const fallbackImg = images.current[nearestFrame];
-      if (fallbackImg && fallbackImg.complete) {
+      if (fallbackImg && fallbackImg.complete && fallbackImg.naturalWidth > 0) {
         drawImageAdaptive(ctx, fallbackImg);
       }
     }
@@ -105,10 +118,12 @@ export default function ScrollCinema() {
       if (images.current[i]) continue;
       
       const img = new Image();
-      const paddedIndex = String(i).padStart(3, "0");
-      img.src = `/sequences/ezgif-frame-${paddedIndex}.jpg`;
+      // Store in ref immediately to prevent mobile browser garbage collection during in-flight load
+      images.current[i] = img;
+
+      // Assign event handlers BEFORE setting src to resolve cache race conditions
       img.onload = () => {
-        images.current[i] = img;
+        setDiagnostics(prev => ({ ...prev, loaded: prev.loaded + 1 }));
         // Re-draw immediately if the loading frame is the current target
         if (targetFrame.current === i) {
           triggerRedraw();
@@ -116,9 +131,14 @@ export default function ScrollCinema() {
       };
       img.onerror = () => {
         console.warn("Could not load cinema frame index:", i);
-        // Fallback to mark as done to avoid lockups
-        images.current[i] = images.current[1] || new Image();
+        setDiagnostics(prev => ({ ...prev, failed: prev.failed + 1 }));
+        // Replace with empty image structure, but it will have naturalWidth = 0
+        const fallback = new Image();
+        images.current[i] = fallback;
       };
+
+      const paddedIndex = String(i).padStart(3, "0");
+      img.src = `/sequences/ezgif-frame-${paddedIndex}.jpg`;
     }
   };
 
@@ -206,6 +226,21 @@ export default function ScrollCinema() {
           </span>
         </div>
       </div>
+
+      {/* Real-time Diagnostics overlay (active when URL has ?debug=true) */}
+      {isDebug && (
+        <div className="absolute top-24 left-4 z-50 bg-[#070707]/90 text-xs text-[#00ffcc] font-mono p-4 rounded-xl border border-white/10 select-none pointer-events-none shadow-2xl backdrop-blur-md">
+          <div className="font-bold border-b border-white/10 pb-2 mb-2 tracking-wider text-white uppercase">Cinema Diagnostics</div>
+          <div className="space-y-1">
+            <div>Target Frame: <span className="text-white font-bold">{targetFrame.current}</span></div>
+            <div>Current Frame: <span className="text-white font-bold">{currentFrame.current}</span></div>
+            <div>Loaded Chunks: <span className="text-white font-bold">{loadedChunks.current.size} / 8</span></div>
+            <div>Images Loaded: <span className="text-green-400 font-bold">{diagnostics.loaded}</span></div>
+            <div>Images Failed: <span className="text-red-400 font-bold">{diagnostics.failed}</span></div>
+            <div>Buffer Status: <span className={isBufferReady ? "text-green-400 font-bold" : "text-amber-400 font-bold animate-pulse"}>{isBufferReady ? "READY" : "BUFFERING"}</span></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
