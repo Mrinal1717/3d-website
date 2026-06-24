@@ -17,12 +17,15 @@ export default function ScrollCinema() {
   // Tracks if the targeted frame is cached and drawn
   const [isBufferReady, setIsBufferReady] = useState(true);
 
-  // Helper to draw images in a centered 'object-contain' fashion on 2D context
-  const drawImageContain = (ctx: CanvasRenderingContext2D, img: HTMLImageElement) => {
+  // Helper to draw images on 2D context: containment for landscape, cover for portrait (mobile screens)
+  const drawImageAdaptive = (ctx: CanvasRenderingContext2D, img: HTMLImageElement) => {
     const canvas = ctx.canvas;
     const wr = canvas.width / img.width;
     const hr = canvas.height / img.height;
-    const ratio = Math.min(wr, hr);
+    
+    // Contain (show whole image) on landscape viewports; Cover (fill screen) on portrait viewports
+    const isLandscape = canvas.width > canvas.height;
+    const ratio = isLandscape ? Math.min(wr, hr) : Math.max(wr, hr);
     
     const x = (canvas.width - img.width * ratio) / 2;
     const y = (canvas.height - img.height * ratio) / 2;
@@ -54,7 +57,7 @@ export default function ScrollCinema() {
     const img = images.current[frameToDraw];
 
     if (img && img.complete) {
-      drawImageContain(ctx, img);
+      drawImageAdaptive(ctx, img);
       setIsBufferReady(true);
       currentFrame.current = frameToDraw;
     } else {
@@ -79,7 +82,7 @@ export default function ScrollCinema() {
       
       const fallbackImg = images.current[nearestFrame];
       if (fallbackImg && fallbackImg.complete) {
-        drawImageContain(ctx, fallbackImg);
+        drawImageAdaptive(ctx, fallbackImg);
       }
     }
   };
@@ -173,7 +176,7 @@ export default function ScrollCinema() {
   return (
     <div className="relative w-full h-full bg-[#030303] overflow-hidden">
       {/* Target drawing Canvas */}
-      <canvas ref={canvasRef} className="block w-full h-full object-contain" />
+      <canvas ref={canvasRef} className="block w-full h-full object-cover" />
 
       {/* Blurred Buffer Placeholder overlay */}
       <div 
