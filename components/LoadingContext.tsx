@@ -73,7 +73,7 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
       const frameIndex = String(i).padStart(3, "0");
-      img.src = `sequences/ezgif-frame-${frameIndex}.jpg`;
+      img.src = `/sequences/ezgif-frame-${frameIndex}.jpg`;
       img.onload = handleImageLoad;
       img.onerror = handleImageError;
       images.push(img);

@@ -41,7 +41,7 @@ export default function RootLayout({
           <GSAPProvider>
             <SmoothScroll>
               {/* Global Scroll Cinema Backdrop */}
-              <div className="fixed inset-0 -z-10 w-full h-full pointer-events-none overflow-hidden">
+              <div className="fixed inset-0 z-0 w-full h-full pointer-events-none overflow-hidden">
                 <ScrollCinema />
               </div>
 

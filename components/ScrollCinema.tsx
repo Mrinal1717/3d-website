@@ -106,7 +106,7 @@ export default function ScrollCinema() {
       
       const img = new Image();
       const paddedIndex = String(i).padStart(3, "0");
-      img.src = `sequences/ezgif-frame-${paddedIndex}.jpg`;
+      img.src = `/sequences/ezgif-frame-${paddedIndex}.jpg`;
       img.onload = () => {
         images.current[i] = img;
         // Re-draw immediately if the loading frame is the current target
@@ -151,12 +151,27 @@ export default function ScrollCinema() {
     });
 
     // 3. Canvas sizing handler
+    let lastWidth = 0;
+    let lastHeight = 0;
+
     const handleResize = () => {
       const canvas = canvasRef.current;
       if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        triggerRedraw();
+        const currentWidth = window.innerWidth;
+        const currentHeight = window.innerHeight;
+
+        // Only resize canvas if width changes (e.g. orientation change)
+        // or if height changes significantly (to ignore mobile address bar toggles)
+        const widthChanged = currentWidth !== lastWidth;
+        const heightChangedSignificantly = Math.abs(currentHeight - lastHeight) > 110;
+
+        if (widthChanged || heightChangedSignificantly) {
+          canvas.width = currentWidth;
+          canvas.height = currentHeight;
+          lastWidth = currentWidth;
+          lastHeight = currentHeight;
+          triggerRedraw();
+        }
       }
     };
 
