@@ -30,15 +30,14 @@ export default function ScrollCinema() {
     }
   }, []);
 
-  // Helper to draw images on 2D context: containment for landscape, cover for portrait (mobile screens)
+  // Helper to draw images on 2D context: always preserve original 16:9 aspect ratio (containment)
   const drawImageAdaptive = (ctx: CanvasRenderingContext2D, img: HTMLImageElement) => {
     const canvas = ctx.canvas;
     const wr = canvas.width / img.width;
     const hr = canvas.height / img.height;
     
-    // Contain (show whole image) on landscape viewports; Cover (fill screen) on portrait viewports
-    const isLandscape = canvas.width > canvas.height;
-    const ratio = isLandscape ? Math.min(wr, hr) : Math.max(wr, hr);
+    // Always contain (show whole 16:9 image) on all viewports, leaving black bars on extra space
+    const ratio = Math.min(wr, hr);
     
     const x = (canvas.width - img.width * ratio) / 2;
     const y = (canvas.height - img.height * ratio) / 2;
