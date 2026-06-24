@@ -103,7 +103,7 @@ export default function ScrollCinema() {
       
       const img = new Image();
       const paddedIndex = String(i).padStart(3, "0");
-      img.src = `/sequences/ezgif-frame-${paddedIndex}.jpg`;
+      img.src = `sequences/ezgif-frame-${paddedIndex}.jpg`;
       img.onload = () => {
         images.current[i] = img;
         // Re-draw immediately if the loading frame is the current target
